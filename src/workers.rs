@@ -4,9 +4,9 @@ use std::thread;
 use std::time::Duration;
 
 pub struct Worker {
-    name: String,
-    id: i32,
-    sender: Sender<String>,
+    pub name: String,
+    pub id: i32,
+    pub sender: Sender<String>,
 }
 
 pub fn start_supervisor(n_workers: i32, event_requester: Sender<String>) -> Vec<Worker> {
@@ -39,7 +39,7 @@ fn start_worker(
 ) -> () {
     loop {
         match worker_receiver.recv_timeout(Duration::from_secs(3)) {
-            Ok(value) => println!("{}", value),
+            Ok(value) => println!("I got some stuff to do {}", value),
             Err(_) => {
                 let value = format!("{}", name);
                 event_requester.send(value).unwrap();
