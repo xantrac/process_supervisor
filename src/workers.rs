@@ -9,7 +9,7 @@ pub struct Worker {
     pub sender: Sender<String>,
 }
 
-pub fn start_supervisor(n_workers: i32, event_requester: Sender<String>) -> Vec<Worker> {
+pub fn start_supervisor(n_workers: i32, event_requester: Sender<String>, callback: fn(String) -> ()) -> Vec<Worker> {
     let workers: Vec<Worker> = (1..n_workers)
         .map(|n| {
             let cloned_event_requester = Sender::clone(&event_requester);
@@ -20,6 +20,7 @@ pub fn start_supervisor(n_workers: i32, event_requester: Sender<String>) -> Vec<
                     format!("worker#{}", n),
                     cloned_event_requester,
                     consumer_receiver,
+                    callback,
                 )
             });
             Worker {
@@ -36,10 +37,11 @@ fn start_worker(
     name: String,
     event_requester: Sender<String>,
     worker_receiver: Receiver<String>,
+    callback: fn(String) -> ()
 ) -> () {
     loop {
         match worker_receiver.recv_timeout(Duration::from_secs(3)) {
-            Ok(value) => println!("I got some stuff to do {}", value),
+            Ok(value) => callback(value),
             Err(_) => {
                 let value = format!("{}", name);
                 event_requester.send(value).unwrap();

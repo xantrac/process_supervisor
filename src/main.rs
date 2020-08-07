@@ -5,8 +5,8 @@ use std::sync::mpsc::{Receiver, Sender};
 
 fn main() {
     let (event_requester, event_request): (Sender<String>, Receiver<String>) = mpsc::channel();
-
-    let workers = workers::start_supervisor(5, event_requester);
+    fn callback (value: String) { println!("Executing callback with value: {}", value) };
+    let workers = workers::start_supervisor(5, event_requester, callback);
     let mut workers_map: HashMap<String, workers::Worker> = HashMap::new();
     for worker in workers {
         workers_map.insert(String::from(&worker.name), worker);
