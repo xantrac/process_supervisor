@@ -38,12 +38,11 @@ fn start_worker(
     worker_receiver: Receiver<String>,
 ) -> () {
     loop {
-        match worker_receiver.recv() {
+        match worker_receiver.recv_timeout(Duration::from_secs(3)) {
             Ok(value) => println!("{}", value),
             Err(_) => {
-                let value = format!("Next event for worker {} please", name);
+                let value = format!("{}", name);
                 event_requester.send(value).unwrap();
-                thread::sleep(Duration::from_secs(3));
             }
         }
     }
